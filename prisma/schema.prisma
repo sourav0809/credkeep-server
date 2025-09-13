@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          Int          @id @default(autoincrement())
+  name        String?
+  email       String       @unique @map("email")
+  password    String
+  categories  Category[]
+  credentials Credential[]
+  notes       Note[]
+  auditLogs   AuditLog[]
+
+  @@map("users")
+}
+
+model Category {
+  id          Int          @id @default(autoincrement())
+  userId      Int          @map("user_id")
+  name        String
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  credentials Credential[]
+
+  @@map("categories")
+}
+
+model Credential {
+  id               Int               @id @default(autoincrement())
+  userId           Int               @map("user_id")
+  categoryId       Int               @map("category_id")
+  siteName         String            @map("site_name")
+  siteUrl          String?           @map("site_url")
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category         Category          @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  credentialFields CredentialField[]
+
+  @@map("credentials")
+}
+
+model CredentialField {
+  id                  Int        @id @default(autoincrement())
+  credentialId        Int        @map("credential_id")
+  fieldName           String     @map("field_name")
+  fieldType           String     @default("text") @map("field_type")
+  fieldValueEncrypted String     @map("field_value_encrypted")
+  credential          Credential @relation(fields: [credentialId], references: [id], onDelete: Cascade)
+
+  @@map("credential_fields")
+}
+
+model Note {
+  id               Int    @id @default(autoincrement())
+  userId           Int    @map("user_id")
+  title            String
+  contentEncrypted String @map("content_encrypted")
+  user             User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notes")
+}
+
+model AuditLog {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  action    String
+  ipAddress String?  @map("ip_address")
+  createdAt DateTime @default(now()) @map("created_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("audit_logs")
+}
