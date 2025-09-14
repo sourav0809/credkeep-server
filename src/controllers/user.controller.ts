@@ -10,6 +10,7 @@ import { SALT_ROUNDS } from "../constant/common";
 import { errorMessages } from "../constant/errorMessages";
 import { successMessages } from "../constant/successMessages";
 import { envConfig } from "../config/envConfig";
+import { AuthenticatedRequest } from "../types/common";
 
 /**
  * @function registerUser
@@ -119,7 +120,51 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * @function getCurrentUser
+ * @param {AuthenticatedRequest} req - Express request object with authenticated user
+ * @param {Response} res - Express response object
+ */
+const getCurrentUser = catchAsync(
+  async (req: AuthenticatedRequest, res: Response) => {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return response(
+        res,
+        httpStatus.UNAUTHORIZED,
+        errorMessages.Auth.INVALID_TOKEN
+      );
+    }
+
+    const user = await userService.findOne({ id: userId });
+
+    if (!user) {
+      return response(
+        res,
+        httpStatus.NOT_FOUND,
+        errorMessages.User.USER_NOT_FOUND
+      );
+    }
+
+    // Return user data without sensitive information
+    const userData = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+    };
+
+    return response(
+      res,
+      httpStatus.OK,
+      successMessages.User.USER_FETCHED,
+      userData
+    );
+  }
+);
+
 export default {
   registerUser,
   loginUser,
+  getCurrentUser,
 };
