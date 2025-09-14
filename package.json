@@ -9,6 +9,8 @@
     "start": "nodemon src/index.ts",
     "start:prod": "pm2 startOrReload pm2/ecosystem.config.json",
     "build": "rimraf dist && tsc",
+    "migrate": "prisma migrate dev",
+    "prisma:studio": "prisma studio",
     "ts.check": "tsc --project tsconfig.json",
     "add-build": "git add dist",
     "test": "echo \"Error: no test specified\" && exit 1"

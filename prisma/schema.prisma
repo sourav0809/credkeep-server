@@ -34,8 +34,9 @@ model Credential {
   id               Int               @id @default(autoincrement())
   userId           Int               @map("user_id")
   categoryId       Int               @map("category_id")
-  siteName         String            @map("site_name")
-  siteUrl          String?           @map("site_url")
+  name             String            @map("name")
+  url              String?           @map("url")
+  type             String            @default("password") @map("type")
   user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   category         Category          @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   credentialFields CredentialField[]
@@ -47,8 +48,8 @@ model CredentialField {
   id                  Int        @id @default(autoincrement())
   credentialId        Int        @map("credential_id")
   fieldName           String     @map("field_name")
-  fieldType           String     @default("text") @map("field_type")
-  fieldValueEncrypted String     @map("field_value_encrypted")
+  fieldType           String     @default("TEXT") @map("field_type")
+  fieldValue          String     @map("field_value")
   credential          Credential @relation(fields: [credentialId], references: [id], onDelete: Cascade)
 
   @@map("credential_fields")
@@ -58,7 +59,7 @@ model Note {
   id               Int    @id @default(autoincrement())
   userId           Int    @map("user_id")
   title            String
-  contentEncrypted String @map("content_encrypted")
+  content          String @map("content")
   user             User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("notes")
